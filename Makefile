@@ -1,12 +1,15 @@
-.PHONY: clean all test
+.PHONY: clean all
 
-all: example
+all: simple csv influx
 
-example: example.cpp vz89te.cpp vz89te.hpp
-	g++ -flto -O1 -g example.cpp vz89te.cpp -o example
+simple: simple.cpp vz89te.cpp vz89te.hpp Makefile
+	g++ -Wall -Wextra -Werror -flto -O1 -g simple.cpp vz89te.cpp -o simple
+
+csv: csv.cpp vz89te.cpp vz89te.hpp Makefile
+	g++ -Wall -Wextra -Werror -flto -O1 -g csv.cpp vz89te.cpp -o csv
+
+influx: influx.cpp vz89te.cpp vz89te.hpp Makefile
+	g++ -Wall -Wextra -Werror -flto -O1 -g influx.cpp vz89te.cpp -o influx
 
 clean:
-	rm -vf example
-
-test: example
-	time ./example
+	rm -vf simple csv influx

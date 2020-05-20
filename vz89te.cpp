@@ -9,8 +9,8 @@
 
 #include "vz89te.hpp"
 
-#define SYSERR(expr) (([&](){ const auto r = ((expr)); if( (long)r == -1L ) { perror(#expr); throw #expr; } else return r; })())
-#define EXPECT(expr, value) (([&](){ const auto r = ((expr)); if( r != value ) { perror(#expr); throw #expr; } else return r; })())
+#define SYSERR(expr) (([&](){ const auto r = ((expr)); if( (long)r == -1L ) { throw #expr; } else return r; })())
+#define EXPECT(expr, value) (([&](){ const auto r = ((expr)); if( r != value ) { throw #expr; } else return r; })())
 
 namespace vz89te
 {
@@ -58,7 +58,7 @@ namespace vz89te
 	void TVZ89TE::Refresh()
 	{
 		SendCommand(CMD_GET_STATUS, (const uint8_t*)"\x00\x00\x00\x00");
-		usleep(100000);
+		usleep(100000);	// 100ms delay, required by sensor
 		uint8_t buffer[7];
 		EXPECT(read(this->fd, buffer, sizeof(buffer)), sizeof(buffer));
 
@@ -66,27 +66,33 @@ namespace vz89te
 
 		if(IsAllZero(buffer, sizeof(buffer)))
 		{
-			fprintf(stderr, "WARN: did not receive any data (refreshed too quickly?)\n");
+			if(DEBUG) fprintf(stderr, "DEBUG: did not receive any data (refreshed too quickly?)\n");
 			throw "no data received";
 		}
 
 		const uint8_t calc_crc = CalculateCRC(buffer, sizeof(buffer) - 1);
 		if(buffer[6] != calc_crc)
 		{
-			fprintf(stderr, "WARN: CRC mismatch; my calculated CRC = %02x vs. transmitted CRC = %02x\n", calc_crc, buffer[6]);
+			if(DEBUG) fprintf(stderr, "DEBUG: CRC mismatch; my calculated CRC = %02x vs. transmitted CRC = %02x\n", calc_crc, buffer[6]);
 			throw "CRC mismatch";
 		}
 
 		if(buffer[5] != 0)
 		{
-			fprintf(stderr, "WARN: chip returned error code = %02x\n", buffer[5]);
+			if(DEBUG) fprintf(stderr, "DEBUG: chip returned error code = %02x\n", buffer[5]);
 			throw "chip returned error status";
 		}
 
-		this->ppb_voc = (double)(buffer[0] - 13) * (1000.0 / 229.0);
-		this->ppb_co2 = (double)(buffer[1] - 13) * (1600.0 / 229.0) + 400.0;
+		if(buffer[0] < 13 || buffer[1] < 13)
+		{
+			if(DEBUG) fprintf(stderr, "DEBUG: chip returned bogus values (D1 < 13 or D2 < 13); D1 = %hhu, D2 = %hhu", buffer[0], buffer[1]);
+			throw "bogus data received";
+		}
 
-		if(DEBUG) fprintf(stderr, "DEBUG: successfully refreshed sensor values: voc = %lf, co2 = %lf\n", this->ppb_voc, this->ppb_co2);
+		this->ppb_voc = (double)(buffer[0] - 13) * (1000.0 / 229.0);
+		this->ppm_co2 = (double)(buffer[1] - 13) * (1600.0 / 229.0) + 400.0;
+
+		if(DEBUG) fprintf(stderr, "DEBUG: successfully refreshed sensor values: voc = %hhu, co2 = %hhu\n", buffer[0], buffer[1]);
 	}
 
 	TVZ89TE::TVZ89TE(const char* const i2c_bus_device, const uint8_t addr) : fd(SYSERR(open(i2c_bus_device, O_RDWR | O_CLOEXEC | O_SYNC))), addr(addr)

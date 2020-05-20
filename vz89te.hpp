@@ -14,7 +14,7 @@ namespace vz89te
 
 		public:
 			double ppb_voc;
-			double ppb_co2;
+			double ppm_co2;
 
 			void Refresh();
 
