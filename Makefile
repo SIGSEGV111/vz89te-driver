@@ -1,15 +1,12 @@
 .PHONY: clean all
 
-all: simple csv influx
+all: vz89te-csv vz89te-influx
 
-simple: simple.cpp vz89te.cpp vz89te.hpp Makefile
-	g++ -Wall -Wextra -Werror -flto -O1 -g simple.cpp vz89te.cpp -o simple
+vz89te-csv: vz89te-csv.cpp vz89te.cpp vz89te.hpp Makefile
+	g++ -Wall -Wextra -flto -O3 vz89te-csv.cpp vz89te.cpp -o vz89te-csv
 
-csv: csv.cpp vz89te.cpp vz89te.hpp Makefile
-	g++ -Wall -Wextra -Werror -flto -O1 -g csv.cpp vz89te.cpp -o csv
-
-influx: influx.cpp vz89te.cpp vz89te.hpp Makefile
-	g++ -Wall -Wextra -Werror -flto -O1 -g influx.cpp vz89te.cpp -o influx
+vz89te-influx: vz89te-influx.cpp vz89te.cpp vz89te.hpp Makefile
+	g++ -Wall -Wextra -flto -O3 vz89te-influx.cpp vz89te.cpp -o vz89te-influx
 
 clean:
-	rm -vf simple csv influx
+	rm -vf simple vz89te-csv vz89te-influx

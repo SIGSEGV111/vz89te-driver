@@ -15,9 +15,6 @@ static void OnSignal(int)
 
 #define SYSERR(expr) (([&](){ const auto r = ((expr)); if( (long)r == -1L ) { throw #expr; } else return r; })())
 
-// const static double BILLION = 1000000000;
-// const static double MILLION = 1000000;
-
 int main(int argc, char* argv[])
 {
 	signal(SIGINT,  &OnSignal);
