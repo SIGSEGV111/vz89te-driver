@@ -55,9 +55,9 @@ int main(int argc, char* argv[])
 
 		return 0;
 	}
-	catch(const char* err)
+	catch(const char* const err)
 	{
-		perror(err);
+		fprintf(stderr, "[ERROR] %s\n", err);
 		return 1;
 	}
 	return 2;
