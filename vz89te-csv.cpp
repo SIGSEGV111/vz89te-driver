@@ -34,16 +34,14 @@ int main(int argc, char* argv[])
 
 		while(do_run)
 		{
-			timeval tv_start;
-			timeval tv_end;
+			timeval ts;
 
-			SYSERR(gettimeofday(&tv_start, NULL));
 			vz89te.Refresh();
-			SYSERR(gettimeofday(&tv_end, NULL));
+			SYSERR(gettimeofday(&ts, NULL));
 
 			SYSERR(flock(STDOUT_FILENO, LOCK_EX));
-			printf("%ld.%06ld;%ld.%06ld;\"%s\";\"VZ89TE\";\"VOC\";%f\n", tv_start.tv_sec, tv_start.tv_usec, tv_end.tv_sec, tv_end.tv_usec, argv[2], vz89te.ppb_voc);
-			printf("%ld.%06ld;%ld.%06ld;\"%s\";\"VZ89TE\";\"CO2\";%f\n", tv_start.tv_sec, tv_start.tv_usec, tv_end.tv_sec, tv_end.tv_usec, argv[2], vz89te.ppm_co2);
+			printf("%ld.%06ld;\"%s\";\"VZ89TE\";\"VOC\";%f\n", ts.tv_sec, ts.tv_usec, argv[2], vz89te.ppb_voc);
+			printf("%ld.%06ld;\"%s\";\"VZ89TE\";\"CO2\";%f\n", ts.tv_sec, ts.tv_usec, argv[2], vz89te.ppm_co2);
 			fflush(stdout);
 			SYSERR(flock(STDOUT_FILENO, LOCK_UN));
 
