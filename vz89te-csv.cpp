@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 			fflush(stdout);
 			SYSERR(flock(STDOUT_FILENO, LOCK_UN));
 
-			usleep(10 * 1000 * 1000);
+			usleep(1 * 1000 * 1000);
 		}
 
 		return 0;
