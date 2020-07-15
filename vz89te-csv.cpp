@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
 	signal(SIGHUP,  &OnSignal);
 	signal(SIGQUIT, &OnSignal);
 
+	close(STDIN_FILENO);
+
 	try
 	{
 		if(argc != 3)
